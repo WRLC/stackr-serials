@@ -6,3 +6,4 @@ data/*
 !test_data.csv
 !.gitkeep
 .idea
+wcapi.json
