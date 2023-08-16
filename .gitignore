@@ -7,3 +7,4 @@ data/*
 !.gitkeep
 .idea
 wcapi.json
+wcapi_token.json
