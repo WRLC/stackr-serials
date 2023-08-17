@@ -138,8 +138,9 @@ wc_get_token <- function() {
           }
   )
 
-  write(token, file = "./wcapi_token.json")
-    cat("New access token obtained...\n")
+  myfile <- data.frame(content(token))
+  write(toJSON(myfile), file = "./wcapi_token.json")
+  cat("New access token obtained...\n")
 }
 
 refresh_wc_token <- function(old_token) {
@@ -162,7 +163,8 @@ refresh_wc_token <- function(old_token) {
             return(NA)
           }
   )
-  write(token, file = "./wcapi_token.json")
+  myfile <- data.frame(content(token))
+  write(toJSON(myfile), file = "./wcapi_token.json")
   cat("Access token refreshed...\n")
 }
 
@@ -254,11 +256,11 @@ wc_get_new <- function(d, have) {
                         } else {  # If there's not a refresh token...
                           cat("There's no refresh token present...\n")  # ...print that to the console
                           wc_get_token()  # ...get a completely new token
-                            token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
+                          token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
                         }
                       } else {
                         # If the token isn't expired, use it
-                        token <- token
+                        token <- fromJSON('./wcapi_token.json')
                       }
                     } else {  # If there's no token...
                       cat("No existing access token found...\n")  # ...print that to the console
