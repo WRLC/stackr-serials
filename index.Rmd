@@ -250,7 +250,7 @@ wc_get_new <- function(d, have) {
                             wc_get_token()  # ...get a completely new token
                             token <- fromJSON('./wcapi.json')  # ...and assign it to `token`
                           } else {  # but if refresh token isn't expired...
-                            refresh_wc_token(token)  # ...use the refresh token to get a new token
+                            refresh_wc_token(tokenfile)  # ...use the refresh token to get a new token
                             token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
                           }
                         } else {  # If there's not a refresh token...
