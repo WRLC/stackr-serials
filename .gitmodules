@@ -1,0 +1,3 @@
+[submodule "stackr-shared"]
+	path = stackr-shared
+	url = git@github.com:WRLC/stackr-shared.git
