@@ -48,7 +48,7 @@ knitr::opts_chunk$set(echo = FALSE)
 values <- reactiveValues()
 
 # Get latest wc_holdings csv
-ws_key_exists <- file.exists("./wcapi.json")
+ws_key_exists <- file.exists("./stackr-shared/wcapi.json")
 
 # If an API key exists, proceed
 if(ws_key_exists) {
@@ -119,54 +119,7 @@ values$df <- d
 
 ```{r wc_holdings}
 # Functions for getting OCLC holdings
-wc_get_token <- function() {
-  cat("Getting new access token...\n")
-  creds <- fromJSON('./wcapi.json')
-  client_id <- creds$wcapi$client_id
-  client_secret <- creds$wcapi$client_secret
-
-  auth <- base64encode(charToRaw(paste0(client_id, ":", client_secret)))
-
-  tryCatch(
-          token <- POST('https://oauth.oclc.org/token',
-            body = list(grant_type="client_credentials", scope="wcapi refresh_token"),
-            encode = "form",
-            add_headers(Authorization=paste("Basic", auth))
-          ), error = function(e) {
-            print(e)
-            return(NA)
-          }
-  )
-
-  myfile <- data.frame(content(token))
-  write(toJSON(myfile), file = "./wcapi_token.json")
-  cat("New access token obtained...\n")
-}
-
-refresh_wc_token <- function(old_token) {
-  cat("Refreshing access token...\n")
-  refresh_token <- old_token$refresh_token
-
-  creds <- fromJSON('wcapi.json')
-  client_id <- creds$wcapi$client_id
-  client_secret <- creds$wcapi$client_secret
-
-  auth <- base64encode(charToRaw(paste0(client_id, ":", client_secret)))
-
-  tryCatch(
-          token <- POST('https://oauth.oclc.org/token',
-            body = list(refresh_token=refresh_token, grant_type="refresh_token"),
-            encode = "form",
-            add_headers(Authorization=paste("Basic", auth))
-          ), error = function(e) {
-            print(e)
-            return(NA)
-          }
-  )
-  myfile <- data.frame(content(token))
-  write(toJSON(myfile), file = "./wcapi_token.json")
-  cat("Access token refreshed...\n")
-}
+source("./stackr-shared/main.R")
 
 # Use the oclc number (without any characters) and wskey to get the number of libraries for an item
 wc_holdings_oclc <- function(oclc, token) {
@@ -230,8 +183,8 @@ wc_get_new <- function(d, have) {
                                 )
 
                     # Check if there's already a stored token
-                    if(file.exists('./wcapi_token.json')) {  # If so...
-                      tokenfile <- fromJSON('./wcapi_token.json')  # ...get the stored token
+                    if(file.exists('./stackr-shared/wcapi_token.json')) {  # If so...
+                      tokenfile <- fromJSON('./stackr-shared/wcapi_token.json')  # ...get the stored token
                       token_exp <- tokenfile$expires_at  # ...and get it's expiration time
 
                       s <- Sys.time()  # Get system time
@@ -248,24 +201,24 @@ wc_get_new <- function(d, have) {
                           if(ref_exp <= st) { # ...but the refresh token is expired, too...
                             cat("Refresh token is also expired...\n")  # ...print that to the console
                             wc_get_token()  # ...get a completely new token
-                            token <- fromJSON('./wcapi.json')  # ...and assign it to `token`
+                            token <- fromJSON('./stackr-shared/wcapi.json')  # ...and assign it to `token`
                           } else {  # but if refresh token isn't expired...
                             refresh_wc_token(tokenfile)  # ...use the refresh token to get a new token
-                            token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
+                            token <- fromJSON('./stackr-shared/wcapi_token.json')  # ...and assign it to `token`
                           }
                         } else {  # If there's not a refresh token...
                           cat("There's no refresh token present...\n")  # ...print that to the console
                           wc_get_token()  # ...get a completely new token
-                          token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
+                          token <- fromJSON('./stackr-shared/wcapi_token.json')  # ...and assign it to `token`
                         }
                       } else {
                         # If the token isn't expired, use it
-                        token <- fromJSON('./wcapi_token.json')
+                        token <- fromJSON('./stackr-shared/wcapi_token.json')
                       }
                     } else {  # If there's no token...
                       cat("No existing access token found...\n")  # ...print that to the console
                       wc_get_token()  # ...get a completely new token
-                      token <- fromJSON('./wcapi_token.json')  # ...and assign it to `token`
+                      token <- fromJSON('./stackr-shared/wcapi_token.json')  # ...and assign it to `token`
                     }
 
                     # Get the holdings using wc_holdings_oclc(). If there's an error, return NA
