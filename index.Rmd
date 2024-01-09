@@ -2,6 +2,8 @@
 title: "Serials in SCF"
 output: 
   flexdashboard::flex_dashboard:
+    theme:
+        version: 5
     orientation: rows
     logo: www/images/logo.png 
     favicon: www/images/icon.ico
